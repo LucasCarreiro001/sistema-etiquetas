@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from schemas import ProdutosSchema, UsuariosSchema, LoginSchema
 from typing import List
 from schemas import CriarUsuarioSchema
-from auth import hash_password, criar_token, verify_password
+from auth import hash_password, criar_token, verify_password, usuario_atual, exigir_cargo_admin
 
 
 app = FastAPI()
@@ -55,3 +55,16 @@ def login(dados_login: LoginSchema, db: Session = Depends(get_db)):
 
     token = criar_token({'user_id': usuario.id, 'cargo': usuario.cargo})
     return {'acesso_token': token, 'token_type': 'bearer'}
+
+@app.post('/usuarios', response_model=UsuariosSchema)
+def criar_usuario(dados: CriarUsuarioSchema, db: Session = Depends(get_db), usuario: dict = Depends(exigir_cargo_admin)):
+    novo_usuario = Usuarios(
+        nome = dados.nome,
+        email = dados.email,
+        senha_hash = hash_password(dados.senha),
+        cargo = dados.cargo
+    )
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+    return(novo_usuario)
