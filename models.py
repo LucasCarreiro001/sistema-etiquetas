@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, CheckConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -12,7 +12,7 @@ class Usuarios(Base):
     cargo = Column(String(50), nullable=False)
 
     __table_args__ = (
-        CheckConstraint("cargo IN ('funcionario', 'administrador')", name="check_cargo"),
+        CheckConstraint("cargo IN ('funcionario', 'admin')", name="check_cargo"),
     )
 
 class Produtos(Base):
@@ -24,6 +24,7 @@ class Produtos(Base):
     validade_unidade = Column(String(10), nullable=False)
     validade_referencia = Column(String(10), nullable=False)
     armazenamento = Column(String(50), nullable=False)
+    ativo = Column(Boolean, nullable=False, default=True)
 
     __table_args__ = (
         CheckConstraint(

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class ProdutosSchema(BaseModel):
     id: int
@@ -30,3 +31,30 @@ class CriarUsuarioSchema(BaseModel):
 class LoginSchema(BaseModel):
     email: str
     senha: str
+
+class CriarProdutosSchemas(BaseModel):
+    nome: str
+    validade_valor: int
+    validade_unidade: str
+    validade_referencia: str
+    armazenamento: str
+
+class ValidadeCalculadaSchemas(BaseModel):
+    produto_id: int
+    nome: str
+    manipulado_em: datetime
+    validade: datetime
+    armazenamento:str
+
+class EtiquetaGerarSchemas(BaseModel):
+    produto_id: int
+    quantidade: int
+
+
+class EtiquetaConteudoSchemas(BaseModel):
+    produto_nome: str
+    manipulado_por: str
+    manipulado_em: datetime
+    validade: datetime
+    armazenamento: str
+    quantidade: int
