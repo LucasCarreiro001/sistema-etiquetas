@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from models import Produtos, Usuarios
+from models import Produtos, Usuarios, Etiquetas
 from typing import List
 from pydantic import BaseModel
-from schemas import ProdutosSchema, UsuariosSchema, LoginSchema, ValidadeCalculadaSchemas
+from schemas import ProdutosSchema, UsuariosSchema, LoginSchema, ValidadeCalculadaSchemas, EtiquetaConteudoSchemas, EtiquetaGerarSchemas
 from typing import List
 from schemas import CriarUsuarioSchema, CriarProdutosSchemas
 from fastapi.security import OAuth2PasswordRequestForm
@@ -133,3 +133,36 @@ def consultar_validade(produto_id: int, db: Session = Depends(get_db), usuario: 
         validade=validade,
         armazenamento=produto.armazenamento
     )
+
+@app.post('/etiquetas/gerar', response_model=EtiquetaConteudoSchemas)
+def criar_etiquetas(dados: EtiquetaGerarSchemas, db: Session = Depends(get_db), usuario: dict = Depends(usuario_atual)):
+    produto = db.query(Produtos).filter(Produtos.id == dados.produto_id, Produtos.ativo == True).first()
+
+    if not produto:
+        raise HTTPException(status_code=404, detail='Produto não encontrado')
+
+    usuario_logado = db.query(Usuarios).filter(Usuarios.id == usuario['user_id']).first()
+
+    agora = datetime.now()
+    validade = calcular_validade(produto, agora)
+
+    nova_etiqueta = Etiquetas(
+        produto_id=produto.id,
+        user_id=usuario_logado.id,
+        data_hora_criacao=agora,
+        data_hora_validade = validade,
+        armazenamento = produto.armazenamento,
+        qnt_etiquetas = dados.quantidade
+    )
+    db.add(nova_etiqueta)
+    db.commit()
+
+    return EtiquetaConteudoSchemas(
+        produto_nome=produto.nome,
+        manipulado_por=usuario_logado.nome,
+        manipulado_em=agora,
+        validade=validade,
+        armazenamento=produto.armazenamento,
+        quantidade=dados.quantidade
+    )
+
