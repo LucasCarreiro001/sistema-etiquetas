@@ -25,6 +25,7 @@ class Produtos(Base):
     validade_referencia = Column(String(10), nullable=False)
     armazenamento = Column(String(50), nullable=False)
     ativo = Column(Boolean, nullable=False, default=True)
+    categoria = Column(String(20), nullable=False)
 
     __table_args__ = (
         CheckConstraint(
@@ -39,6 +40,11 @@ class Produtos(Base):
             "armazenamento IN ('congelado', 'refrigerado', 'temperatura ambiente')",
             name="check_condicao_valida"
         ),
+
+        CheckConstraint(
+            "categoria IN ('padaria', 'confeitaria', 'bebidas', 'comidas', 'sobremesas')",
+            name='check_categoria_valida'
+        )
     )
 
 class Etiquetas(Base):

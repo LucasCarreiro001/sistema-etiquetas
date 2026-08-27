@@ -8,6 +8,7 @@ class ProdutosSchema(BaseModel):
     validade_unidade: str
     validade_referencia: str
     armazenamento: str
+    categoria: str
 
     class Config:
         from_attributes = True
@@ -38,6 +39,7 @@ class CriarProdutosSchemas(BaseModel):
     validade_unidade: str
     validade_referencia: str
     armazenamento: str
+    categoria: str
 
 class ValidadeCalculadaSchemas(BaseModel):
     produto_id: int
@@ -58,3 +60,15 @@ class EtiquetaConteudoSchemas(BaseModel):
     validade: datetime
     armazenamento: str
     quantidade: int
+
+class EtiquetaHistorico(BaseModel):
+    id: int
+    produto_nome: str
+    manipulado_por: str
+    manipulado_em: datetime
+    validade: datetime
+    armazenamento: str
+    quantidade: int
+
+    class Config:
+        from_attributes = True

@@ -2,15 +2,17 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from models import Produtos, Usuarios, Etiquetas
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from schemas import ProdutosSchema, UsuariosSchema, LoginSchema, ValidadeCalculadaSchemas, EtiquetaConteudoSchemas, EtiquetaGerarSchemas
 from typing import List
-from schemas import CriarUsuarioSchema, CriarProdutosSchemas
+from schemas import CriarUsuarioSchema, CriarProdutosSchemas, EtiquetaHistorico
 from fastapi.security import OAuth2PasswordRequestForm
-from datetime import datetime
+from datetime import datetime, date
 from calculo_validade import calcular_validade
 from auth import hash_password, criar_token, verify_password, usuario_atual, exigir_cargo_admin
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI()
@@ -79,7 +81,8 @@ def criar_produto(dados: CriarProdutosSchemas, db:Session=Depends(get_db), usuar
         validade_valor= dados.validade_valor,
         validade_unidade=dados.validade_unidade,
         validade_referencia = dados.validade_referencia,
-        armazenamento = dados.armazenamento
+        armazenamento = dados.armazenamento,
+        categoria = dados.categoria
     )
     db.add(novo_produto)
     db.commit()
@@ -96,15 +99,17 @@ def editar(produto_id: int, dados: CriarProdutosSchemas, db: Session =Depends(ge
 
     if not produto:
         raise HTTPException(status_code=404, detail="produto não encontrado")
+    produtos = Produtos(
+    nome = dados.nome,
+    validade_valor = dados.validade_valor,
+    validade_unidade = dados.validade_unidade,
+    validade_referencia = dados.validade_referencia,
+    armazenamento = dados.armazenamento,
+    categoria = dados.categoria)
 
-    produto.nome = dados.nome
-    produto.validade_valor = dados.validade_valor
-    produto.validade_unidade = dados.validade_unidade
-    produto.validade_referencia = dados.validade_referencia
-    produto.armazenamento = dados.armazenamento
     db.commit()
-    db.refresh(produto)
-    return produto
+    db.refresh(produtos)
+    return produtos
 
 @app.delete('/produtos/{produto_id}')
 def desativar_produto(produto_id: int, db: Session= Depends(get_db), usuario: dict = Depends(exigir_cargo_admin)):
@@ -166,3 +171,43 @@ def criar_etiquetas(dados: EtiquetaGerarSchemas, db: Session = Depends(get_db), 
         quantidade=dados.quantidade
     )
 
+
+
+@app.get("/etiquetas", response_model=List[EtiquetaHistorico])
+def listar_historico(
+    produto_id: Optional[int] = None,
+    data_inicio: Optional[date] = None,
+    data_fim: Optional[date] = None,
+    db: Session = Depends(get_db),
+    usuario: dict = Depends(usuario_atual)
+):
+    query = db.query(Etiquetas)
+
+    if produto_id is not None:
+        query = query.filter(Etiquetas.produto_id == produto_id)
+
+    if data_inicio is not None:
+        query = query.filter(Etiquetas.data_hora_criacao >= data_inicio)
+
+    if data_fim is not None:
+        query = query.filter(Etiquetas.data_hora_criacao <= data_fim)
+
+    etiquetas = query.order_by(Etiquetas.data_hora_criacao.desc()).all()
+
+    resultado = []
+    for e in etiquetas:
+        resultado.append(EtiquetaHistorico(
+            id=e.id,
+            produto_nome=e.produto.nome,
+            manipulado_por=e.usuario.nome,
+            manipulado_em=e.data_hora_criacao,
+            validade=e.data_hora_validade,
+            armazenamento=e.armazenamento,
+            quantidade=e.qnt_etiquetas
+        ))
+
+    return resultado
+
+@app.get('/produtos/categoria/{categoria}', response_model= List[ProdutosSchema])
+def categoria_produtos(categoria:str, db: Session = Depends(get_db), usuario:dict = Depends(usuario_atual)):
+    return db.query(Produtos).filter(Produtos.categoria == categoria, Produtos.ativo == True).all( )
