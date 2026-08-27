@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Etiquetas — Sistema Interno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <header id="app-header" style="display:none;">
+    <div class="brand">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-historico-header" title="Histórico">📋</button>
+      <button class="icon-btn" id="btn-sair" title="Sair">⏻</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- LOGIN -->
+    <section id="login-view" class="view ativa">
+      <div class="login-hero">
+        <h1>Coisa de Vó</h1>
+        <p>Sistema de impressão de etiquetas</p>
+      </div>
+
+      <div class="erro-msg" id="login-erro"></div>
+
+      <div class="campo">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seuemail@empresa.com" autocomplete="username">
+      </div>
+      <div class="campo">
+        <label>Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="btn btn-primario" id="btn-login">Entrar</button>
+    </section>
+
+    <!-- CATEGORIAS -->
+    <section id="categorias-view" class="view">
+      <p class="saudacao" id="saudacao-nome"></p>
+      <h1>O que você vai etiquetar?</h1>
+
+      <div class="grid-categorias">
+        <div class="tile-categoria" data-categoria="padaria">
+          <span class="emoji">🥖</span>
+          <span class="label">Padaria</span>
+        </div>
+        <div class="tile-categoria" data-categoria="confeitaria">
+          <span class="emoji">🍰</span>
+          <span class="label">Confeitaria</span>
+        </div>
+        <div class="tile-categoria" data-categoria="bebidas">
+          <span class="emoji">🥤</span>
+          <span class="label">Bebidas</span>
+        </div>
+        <div class="tile-categoria" data-categoria="comidas">
+          <span class="emoji">🍽</span>
+          <span class="label">Comidas</span>
+        </div>
+      </div>
+
+      <div class="link-historico">
+        <button class="btn btn-fantasma" id="btn-ver-historico">Ver histórico completo →</button>
+      </div>
+    </section>
+
+    <!-- LISTA DE PRODUTOS -->
+    <section id="produtos-view" class="view">
+      <div class="nav-topo">
+        <button id="btn-voltar-categorias">←</button>
+        <h2 id="titulo-categoria">Categoria</h2>
+      </div>
+
+      <div class="campo-busca">
+        <input type="text" id="input-busca" placeholder="Buscar produto...">
+      </div>
+
+      <div class="lista-produtos" id="lista-produtos"></div>
+    </section>
+
+    <!-- DETALHE / GERAR ETIQUETA -->
+    <section id="detalhe-view" class="view">
+      <div class="nav-topo">
+        <button id="btn-voltar-produtos">←</button>
+        <h2>Gerar etiqueta</h2>
+      </div>
+
+      <div class="detalhe-card">
+        <h2 id="detalhe-nome"></h2>
+        <div class="info-linha">
+          <span class="rotulo">Validade</span>
+          <span class="valor" id="detalhe-validade"></span>
+        </div>
+        <div class="info-linha">
+          <span class="rotulo">Armazenamento</span>
+          <span class="valor" id="detalhe-armazenamento"></span>
+        </div>
+        <div class="info-linha" id="linha-porcao" style="display:none;">
+          <span class="rotulo">Porção padrão</span>
+          <span class="valor" id="detalhe-porcao"></span>
+        </div>
+      </div>
+
+      <p style="text-align:center; font-size:13px; color:var(--texto-suave); margin-bottom:4px;">Quantidade de etiquetas</p>
+      <div class="stepper">
+        <button id="btn-menos">−</button>
+        <span class="qtd" id="qtd-etiquetas">1</span>
+        <button id="btn-mais">+</button>
+      </div>
+
+      <div class="erro-msg" id="gerar-erro"></div>
+
+      <button class="btn btn-primario" id="btn-gerar">Gerar etiqueta</button>
+    </section>
+
+    <!-- SUCESSO -->
+    <section id="sucesso-view" class="view">
+      <div class="selo-wrap"><div class="selo-cera"></div></div>
+      <h2>Etiqueta gerada</h2>
+      <p class="sub">Pronta para impressão assim que a impressora estiver conectada</p>
+
+      <div class="mini-etiqueta" id="mini-etiqueta"></div>
+
+      <div class="acoes-sucesso">
+        <button class="btn btn-primario" id="btn-nova-etiqueta">Gerar outra etiqueta</button>
+        <button class="btn btn-secundario" id="btn-voltar-categorias-sucesso">Voltar às categorias</button>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section id="historico-view" class="view">
+      <div class="nav-topo">
+        <button id="btn-voltar-de-historico">←</button>
+        <h2>Histórico</h2>
+      </div>
+      <div class="lista-historico" id="lista-historico"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
